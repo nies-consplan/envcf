@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Rapp.history
+.DS_Store
+.drake/
+*.dic
+config.yml
+.httr-oauth
