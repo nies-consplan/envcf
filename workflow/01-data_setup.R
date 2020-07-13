@@ -140,6 +140,11 @@ source(here::here("R/term_translate.R"))
 if (rlang::is_false(file.exists(here::here("inst/SlothLib_Stopword_Japanese.txt"))))
     curl::curl_download("http://svn.sourceforge.jp/svnroot/slothlib/CSharp/Version1/SlothLib/NLP/Filter/StopWord/word/Japanese.txt",
                         destfile = here::here("inst/SlothLib_Stopword_Japanese.txt"))
+
+if (rlang::is_false(file.exists("inst/mecab-ipadic-neologd/build/mecab-ipadic-2.7.0-20070801-neologd-20200521/mecab-user-dict-seed.20200521.csv.dic"))) {
+  rlang::inform("辞書ファイルが存在しません。README.mdに記載されている手順に従い、辞書ファイルを整備してください")
+}
+
 plan_text_tokenize <-
   drake::drake_plan(
     df_readyfor_text =
