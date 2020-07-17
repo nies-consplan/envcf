@@ -249,5 +249,6 @@ plan_project_successful_model <-
     plan_project_term,
     plan_project_successful_model)
 drake::make(plan_project_successful_model,
-            packages = c("assertr", "dplyr", "lubridate", "purrr", "recipes", "tidyr"))
+            packages = c("assertr", "dplyr", "lubridate", "purrr", "recipes", "tidyr"),
+            seed = 123)
 # drake::loadd(list = c("df_regression_target", "regression_target", "success_model_formula", "logit_all"))
