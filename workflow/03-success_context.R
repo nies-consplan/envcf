@@ -141,50 +141,57 @@ plan_project_successful_model <- drake::drake_plan(
                  select(project_id, success),
                by = "project_id") %>%
     assertr::verify(dim(.) == c(nrow(df_text_token), 6)),
-  df_top30_term =
+  tgt_top_term30 =
     df_text_token_target %>%
-    distinct(project_id, term) %>%
-    count(term, sort = TRUE) %>%
-    slice_max(order_by = n, n = 30) %>%
-    left_join(df_freq_term_en, by = "term") %>%
-    select(term, term_en, n),
-  df_top30_term_prop =
-    df_top30_term %>%
-    left_join(df_text_token_target %>%
-                distinct(project_id, term, success) %>%
-                inner_join(df_top30_term, by = "term") %>%
-                group_by(term, success, n) %>%
-                summarise(term_n = n(), .groups = "drop") %>%
-                group_by(term, success) %>%
-                summarise(prop = term_n / n, .groups = "drop") %>%
-                tidyr::pivot_wider(names_from = success,
-                                   values_from = prop,
-                                   names_prefix = "prop"),
-              by = "term"),
-  # プロジェクト中で複数出現しても 1 としてカウント
-  df_freq_term_unique =
-    df_text_token_target %>%
-    distinct(project_id, success, term) %>%
-    count(success, term) %>%
-    group_by(success) %>%
-    top_n(30) %>%
-    ungroup() %>%
-    rename(freq = n) %>%
-    left_join(df_freq_term_en, by = "term") %>%
-    assertr::verify(nrow(.) == 61L), # 同順位の単語を含むため
+    group_by(term) %>%
+    summarise(freq = sum(freq), .groups = "drop") %>%
+    slice_max(order_by = freq, n = 30) %>%
+    pull(term),
   df_freq_term_duplicate =
     df_text_token_target %>%
+    filter(term %in% tgt_top_term30) %>%
     group_by(success, term) %>%
     summarise(freq = sum(freq), .groups = "drop") %>%
-    group_by(success) %>%
-    slice_max(order_by = freq, n = 30) %>%
-    ungroup() %>%
     left_join(df_freq_term_en, by = "term") %>%
-    assertr::verify(nrow(.) == 61L),
+    assertr::verify(nrow(.) == 60L),
   check_freq_term_en_na =
     df_freq_term_duplicate %>%
     filter(is.na(term_en)) %>%
     assertr::verify(nrow(.) == 0L),
+  df_frequency_term_prop =
+    df_freq_term_duplicate %>%
+    tidyr::pivot_wider(names_from = success,
+                       values_from = freq,
+                       values_fill = 0,
+                       names_prefix = "n_") %>%
+    left_join(
+      df_freq_term_duplicate %>%
+        group_by(term, term_en) %>%
+        summarise(total = sum(freq), .groups = "drop"),
+      by = c("term", "term_en")) %>%
+    mutate(prop_success = n_1_success / total,
+           prop_failure = n_0_failure / total) %>%
+    select(!term) %>%
+    arrange(desc(total)),
+  df_frequency_term_project_count =
+    df_text_token_target %>%
+    filter(term %in% df_freq_term_duplicate$term) %>%
+    count(success, term) %>%
+    tidyr::pivot_wider(
+      names_from = success,
+      values_from = n,
+      values_fill = 0,
+      names_prefix = "n_") %>%
+    mutate(total = n_1_success + n_0_failure) %>%
+    mutate(prop_success = n_1_success / total,
+           prop_failure = n_0_failure / total) %>%
+    arrange(desc(total)) %>%
+    left_join(df_freq_term_duplicate %>%
+                distinct(term, term_en),
+              by = "term") %>%
+    select(!term) %>%
+    select(term_en, everything()) %>%
+    arrange(desc(total)),
   regression_target =
     df_regression_target %>%
     mutate(experience_dummy = if_else(founder_project_count > 1, 1, 0),
