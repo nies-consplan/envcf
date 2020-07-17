@@ -38,10 +38,11 @@ p_out <-
     NodeID = "name",
     fontSize = 10,
     nodeWidth = 50)
-htmlwidgets::saveWidget(p_out, "test.html")
-webshot::webshot("test.html", here::here("figures/Figure_1_topwords_successfailure_count.png"))
-# webshot::webshot("test.html", here::here("figures/Figure_1_topwords_successfailure_count.pdf"))
-unlink("test.html")
+# htmlwidgets::saveWidget(p_out, "test.html")
+# webshot::webshot("test.html", here::here("figures/Figure_1_topwords_successfailure_count.png"))
+# # webshot::webshot("test.html", here::here("figures/Figure_1_topwords_successfailure_count.pdf"))
+# unlink("test.html")
+
 
 # Fig2 --------------------------------------------------------------------
 drake::loadd(list = c("clust_num", "df_cluster_import_words"))
