@@ -1,5 +1,5 @@
 ##############################
-# Figure1. サンキーダイアグラム success, failure (Words * Success)
+# Figure1. Sankey diagram: success, failure (Words * Success)
 # project-result-term_frequency_count_unique_en.png
 # Figure2. Context (wordcloud) Achievement by contexts
 # Figure3. achievement rate - cluster
