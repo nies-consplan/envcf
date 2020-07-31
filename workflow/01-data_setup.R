@@ -1,5 +1,5 @@
 ###################################
-# readyforのデータ(カテゴリほか）取得
+# Data extraction from Readyfor
 ###################################
 library(rvest)
 library(tibble)
