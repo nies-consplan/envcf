@@ -33,7 +33,7 @@ All packages to be used are installed via [renv](https://rstudio.github.io/renv/
 ```r
 if (!requireNamespace("remotes"))
   install.packages("remotes")
-remotes::install_github('rstudio/renv@0.11.0-4')
+remotes::install_github('rstudio/renv@0.12.2')
 ```
 
 Download or clone this repository locally and set it to your working directory.

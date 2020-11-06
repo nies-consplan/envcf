@@ -4,11 +4,7 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://cloud.r-project.org"
-      },
-      {
-        "Name": "SOUMU",
-        "URL": "http://rmecab.jp/R"
+        "URL": "https://cran.microsoft.com/snapshot/2020-07-14"
       }
     ]
   },
