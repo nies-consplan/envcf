@@ -28,7 +28,7 @@ cd inst/mecab-ipadic-neologd
 
 We used version R version 4.0.2.
 
-All packages to be used are installed via [renv](https://rstudio.github.io/renv/). For that, you first need to have renn installed.
+All packages to be used are installed via [renv](https://rstudio.github.io/renv/). For that, you first need to have renv installed.
 
 ```r
 if (!requireNamespace("remotes"))

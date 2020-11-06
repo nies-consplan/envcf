@@ -13,21 +13,6 @@ source(here::here("R/cluster_count.R"))
 
 # Data Modified -----------------------------------------------------------
 plan_project_successful_model <- drake::drake_plan(
-  regression_vars =
-    c(# プロジェクト全体に関する項目
-      "project_id", "success", "amount_raised", "goal",
-      # リターンに関する項目
-      "backers", "found_model", "project_type",
-      "tag_n", "project_days",
-      "max_overlapped_proj", "min_overlapped_proj",
-      "founder_project_count",
-      # SNS
-      "twitter", "hatena", "facebook",
-      # リターン
-      "return_n",
-      # カウント
-      "announce_n", "comment_n",
-      "images", "movies", "project_days"),
   df_target473 =
     df_target %>%
     dplyr::left_join(df_term_cluster %>%

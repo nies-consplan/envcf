@@ -56,10 +56,10 @@ fig_wordcluster <- function(cluster, size = 1) {
     ggwordcloud::ggwordcloud2(color = colorspace::qualitative_hcl(clust_num, "Set 3")[cluster],
                               size = size,
                               shuffle = FALSE) +
-    labs(title = recode({{ cluster }},
-                        `1` = "Pets",
-                        `2` = "Landscape-management",
-                        `3` = "Sustainable-use")) +
+    labs(title = dplyr::recode({{ cluster }},
+                               `1` = "Pets",
+                               `2` = "Landscape-management",
+                               `3` = "Sustainable-use")) +
     theme(plot.title = element_text(hjust = 0.5, size = 22))
 }
 # size を大きくし過ぎると見切れる
@@ -81,10 +81,10 @@ ggsave(plot = p,
 p <-
   df_regression_target %>%
   select(achievement_rate, cluster) %>%
-  mutate(cluster = recode(cluster,
-                          `1` = "Pets",
-                          `2` = "Landscape-management",
-                          `3` = "Sustainable-use") %>%
+  mutate(cluster = dplyr::recode(cluster,
+                                 `1` = "Pets",
+                                 `2` = "Landscape-management",
+                                 `3` = "Sustainable-use") %>%
            forcats::fct_relevel("Pets", "Landscape-management", "Sustainable-use")) %>%
   ggplot(aes(x = factor(cluster),
              y = achievement_rate,
