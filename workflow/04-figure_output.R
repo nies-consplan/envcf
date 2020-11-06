@@ -116,3 +116,28 @@ ggsave(here::here("figures/Figure_3_achieve_cluster.eps"),
        width = 7,
        height = 5,
        dpi = 600)
+
+
+# Supplementary -----------------------------------------------------------
+library(AER)
+drake::loadd(list = c("ols_all", "logit_all", "ols_si", "logit_si", "tbt_aer"))
+stargazer::stargazer(
+  ols_si,
+  logit_si,
+  ci = F,
+  single.row = TRUE,
+  title = "SI RESULTS", align = TRUE,
+  notes = "text is calculated by the text length divided by 1000, and text2 is square of text",
+  notes.align = "l",
+  type = "text")
+summary(tbt_aer)
+
+# stargazer::stargazer(
+#   ols_all,
+#   logit_all,
+#   ci = FALSE,
+#   single.row = TRUE,
+#   title = "RESULTS", align = TRUE,
+#   notes = "text is calculated by the text length divided by 1000, and text2 is square of text",
+#   notes.align = "l",
+#   type = "text")

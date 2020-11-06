@@ -120,6 +120,15 @@ plan_project_successful_model <- drake::drake_plan(
                          "text_length", "title_length",
                          "media_total", "media_rate",
                          "cluster")),
+  # the mean achievement rates by contex
+  cluster_achievement_rate =
+    df_regression_target %>%
+    group_by(cluster) %>%
+    summarise(
+      n = n(),
+      mean_ahieve = mean(achievement_rate, na.rm = TRUE),
+      sd_achieve = sd(achievement_rate, na.rm = TRUE),
+      .groups = "drop"),
   df_text_token_target =
     df_text_token %>%
     inner_join(df_regression_target %>%
@@ -179,54 +188,119 @@ plan_project_successful_model <- drake::drake_plan(
     arrange(desc(total)),
   regression_target =
     df_regression_target %>%
-    mutate(experience_dummy = if_else(founder_project_count > 1, 1, 0),
-           project_type = recode(project_type, furusato_tax = "government"),
-           project_model = recode(
-             found_model,
-             all_or_nothing = "AON",
-             keep_it_all = "KIA"
-           ),
-           text = text_length / 1000,
-           text2 = text ^ 2) %>%
+    mutate(success = forcats::fct_rev(success),
+           experience_dummy = if_else(founder_project_count > 1, 1, 0),
+           project_type = case_when(project_type == "normal" ~ "normal",
+                                    project_type == "charity" ~ "charity",
+                                    project_type == "furusato_tax" ~ "government"),
+           project_type = factor(project_type, levels = c("normal","charity","government")),
+           project_model = case_when(
+             found_model == "all_or_nothing" ~ "AON",
+             found_model == "keep_it_all" ~ "KIA"),
+           project_model = factor(project_model, levels = c("AON", "KIA")),
+           text = text_length/1000,
+           text2 = text^2) %>%
     select(-found_model) %>%
-    rename(
-      amount = amount_raised,
-      experience_n = founder_project_count,
-      reward = return_n,
-      pics = images,
-      videos = movies
-    ) %>%
-    mutate(
-      success = forcats::fct_rev(success),
-      project_type = forcats::fct_relevel(project_type, c("normal", "charity", "government")),
-      project_model = forcats::fct_relevel(project_model, c("AON", "KIA"))),
-  success_model_formula =
-    formula(success ~
-              project_model + project_type  +
-              tag_n +
-              facebook +
-              max_overlapped_proj +
-              experience_dummy +
-              announce_n + reward + pics + videos + text + text2 +
-              cluster),
-  mod_rec =
+    rename(amount = amount_raised,
+           experience_n = founder_project_count,
+           reward = return_n,
+           pics = images,
+           videos = movies) %>%
+    mutate(tag2 = tag_n ^ 2,
+           pics2 = pics ^ 2,
+           reward2 = reward ^ 2,
+           videos2 = videos ^ 2,
+           fb2 = facebook ^ 2),
+  success_failure_count =
     regression_target %>%
-    recipe(
-      formula = success_model_formula),
-  rec_trained =
-    prep(mod_rec, retain = TRUE, verbose = TRUE),
+    group_by(success) %>%
+    count(),
+  ols_all =
+    lm(achievement_rate ~
+         project_type  +
+         project_model +
+         reward +
+         pics +
+         videos +
+         text + text2 +
+         factor(cluster) +
+         experience_dummy +
+         facebook +
+         tag_n +
+         announce_n +
+         max_overlapped_proj,
+       data = regression_target),
   logit_all =
-    rec_trained %>%
-    juice() %>%
-    glm(success_model_formula,
+    glm(factor(success) ~
+          project_type  +
+          project_model +
+          tag_n +
+          facebook +
+          max_overlapped_proj +
+          experience_dummy +
+          announce_n +
+          reward +
+          pics +
+          videos +
+          text + text2 +
+          factor(cluster),
         family = "binomial",
-        data = .),
-  cluster_achievement_rate =
-    regression_target %>%
-    group_by(cluster) %>%
-    summarise(achievement_rate = mean(achievement_rate), .groups = "drop") %>%
-    pull(achievement_rate) %>%
-    ensurer::ensure(all.equal(., c(1.0821561, 0.8720749, 0.6880677), tolerance = 0.00001))
+        data = regression_target),
+  ols_si =
+    lm(achievement_rate ~
+         project_type  +
+         project_model +
+         reward +
+         # reward2 +
+         pics +
+         pics2 +
+         videos +
+         videos2 +
+         text + text2 +
+         factor(cluster) +
+         experience_dummy +
+         facebook +
+         tag_n +
+         announce_n +
+         max_overlapped_proj,
+       data = regression_target),
+  logit_si =
+    glm(
+      success ~
+        project_type  +
+        project_model +
+        reward +
+        # reward2 +
+        pics +
+        pics2 +
+        videos +
+        videos2 +
+        text + text2 +
+        factor(cluster) +
+        experience_dummy +
+        facebook +
+        tag_n +
+        announce_n +
+        max_overlapped_proj,
+      data = regression_target,
+      family = "binomial"),
+  tbt_aer =
+    AER::tobit(achievement_rate ~
+                 project_type  +
+                 project_model +
+                 reward +
+                 pics +
+                 videos +
+                 text + text2 +
+                 factor(cluster) +
+                 experience_dummy +
+                 facebook +
+                 tag_n +
+                 announce_n +
+                 max_overlapped_proj,
+               data = regression_target),
+  tbt_summary =
+    summary(tbt_aer)
 )
 
 plan_project_successful_model <-
@@ -234,6 +308,6 @@ plan_project_successful_model <-
     plan_project_term,
     plan_project_successful_model)
 drake::make(plan_project_successful_model,
-            packages = c("assertr", "dplyr", "lubridate", "purrr", "recipes", "tidyr"),
+            packages = c("assertr", "dplyr", "lubridate", "purrr", "recipes", "tidyr", "AER"),
             seed = 123)
 # drake::loadd(list = c("df_regression_target", "regression_target", "success_model_formula", "logit_all"))
