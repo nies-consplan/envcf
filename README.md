@@ -1,4 +1,4 @@
-envcf
+Environmental Crowdfunding
 ---------------
 
 Data sets and source code for "What determines the success and failure of environmental crowdfunding?".

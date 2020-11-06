@@ -1,5 +1,5 @@
 #####################################
-# プロジェクトの成功・失敗を回帰モデルによって説明
+# Regression analysis 
 #####################################
 source(here::here("workflow/02-project_text_mining.R"))
 library(dplyr)
