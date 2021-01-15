@@ -8,3 +8,4 @@
 config.yml
 .httr-oauth
 README.html
+.env
