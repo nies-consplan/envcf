@@ -1,4 +1,4 @@
-FROM rocker/r-ver:4.3.1@sha256:265b098aec94bb0cc52c9d94abf5ad9bf38f726d6ee8354c55e250f18b871370
+FROM rocker/r-ver:4.3.2@sha256:cadfc14b9f6d72649b3b7db79d4f4d53b70fe4e848b72f16bfb3fafa74bf356a
 
 ENV RENV_VERSION 0.12.2
 ENV RENV_PATHS_CACHE_HOST /opt/local/renv/cache
